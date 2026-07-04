@@ -1,0 +1,27 @@
+services:
+  api:
+    image: api_lakehouse
+    container_name: api_lake_house
+    ports:
+      - "8000:8000"
+    environment:
+      BROKER: redis://redis:6379/0
+      BACKEND: redis://redis:6379/1
+    depends_on:
+      - redis
+
+  worker:
+    image: api_lakehouse
+    container_name: lake_worker
+    command: python -m celery -A INFRA.manager:app worker --pool=solo --loglevel=info
+    environment:
+      BROKER: redis://redis:6379/0
+      BACKEND: redis://redis:6379/1
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: lake_redis
+    ports:
+      - "6379:6379"
